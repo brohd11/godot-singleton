@@ -3,7 +3,7 @@ extends Node
 
 const PLUGIN_EXPORTED = false
 
-const UFile = preload("uid://bl33psa06nv1e") #! resolve ALibRuntime.Utils.UFile.Methods
+#const UFile = preload("uid://bl33psa06nv1e") #! resolve ALibRuntime.Utils.UFile.Methods
 
 enum SingletonType {
 	STANDARD,
@@ -138,7 +138,7 @@ static func _get_latest_version(script:Script, dir_to_check:String="res://addons
 		var module_file_path = dir_to_check.path_join(dir).path_join(".export_data")
 		if not FileAccess.file_exists(module_file_path):
 			continue
-		var module_data = UFile.read_from_json(module_file_path)
+		var module_data = _read_from_json(module_file_path)
 		var modules = module_data.get("singleton_modules", [])
 		for single_module_data in modules:
 			var _name = single_module_data.get("name", "")
@@ -175,6 +175,27 @@ func _get_ready_bool() -> bool:
 func _init(node:Node=null):
 	
 	pass
+
+
+
+#^ Util
+#! using UtilR.Files.URFile.read_from_json
+static func _read_from_json(path:String,access=FileAccess.READ) -> Dictionary:
+	var json_read = JSON.new()
+	var json_load = FileAccess.open(path, access)
+	if json_load == null:
+		print("Couldn't load JSON: ", path)
+		return {}
+	var json_string = json_load.get_as_text()
+	var err = json_read.parse(json_string)
+	if err != OK:
+		print("Couldn't load JSON, error: ", err)
+		return {}
+	
+	return json_read.data
+
+
+
 
 
 ## Implement in extended classes
