@@ -29,7 +29,8 @@ options:
 exports:
   -
     source: "res://addons/addon_lib/singleton"
-    export_folder: "singleton{{version=singleton}}/singleton"
+    export_name: "singleton{{version=singleton}}"
+    export_folder: "addons/addon_lib/singleton"
     exclude:
       directories:
         - "res://addons/addon_lib/singleton/_export_ignore"
