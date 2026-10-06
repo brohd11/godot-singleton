@@ -201,7 +201,7 @@ static func _read_from_json(path:String,access=FileAccess.READ) -> Dictionary:
 ## Implement in extended classes
 
 #extends Singletons.Base # if class_name, use absolute path
-#extends "res://addons/addon_lib/singleton/singleton_base.gd"
+#extends "res://addons/_lib/singleton/singleton_base.gd"
 
 # Use 'PE_STRIP_CAST_SCRIPT' to auto strip type casts with plugin exporter, if the class is not a global name
 #const PE_STRIP_CAST_SCRIPT = preload("this_file")
