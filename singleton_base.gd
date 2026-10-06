@@ -179,7 +179,7 @@ func _init(node:Node=null):
 
 
 #^ Util
-#! using UtilR.Files.URFile.read_from_json
+#! using UtilR.Files.UFile.read_from_json
 static func _read_from_json(path:String,access=FileAccess.READ) -> Dictionary:
 	var json_read = JSON.new()
 	var json_load = FileAccess.open(path, access)
