@@ -5,6 +5,8 @@ const PLUGIN_EXPORTED = false
 
 #const UFile = preload("uid://bl33psa06nv1e") #! resolve ALibRuntime.Utils.UFile.Methods
 
+const RUNTIME_NODE_PATH = "RuntimeSingletons"
+
 enum SingletonType {
 	STANDARD,
 	REF_COUNT
