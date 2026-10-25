@@ -3,7 +3,7 @@
 ## parse time, so the source's extends line is a placeholder, swapped in place (line
 ## numbers survive) for the live base's path. The body must not name that package's
 ## globals or override _init (the base's _init logic gets skipped), and it does not
-## hot reload: re-enable the consuming plugin after editing.
+## hot reload. Mark the file `#! pe-skip-parse` so exports copy it untouched.
 
 const CheckInstance = preload("res://addons/_lib/singleton/src/check_instance.gd")
 
