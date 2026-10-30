@@ -5,21 +5,22 @@ extends "res://addons/_lib/singleton/src/singleton_base.gd" #! ext Singletons.Ba
 static func _get_singleton_type() -> SingletonType:
 	return SingletonType.REF_COUNT
 
-static func _get_instance(script:Script, print_err:=true):
-	var instance = _get_singleton_node_or_null(script, script._get_singleton_node_path(), false)
+static func _get_instance(script:Script, print_err:=true) -> Variant:
+	var instance:Variant = _get_singleton_node_or_null(script, script._get_singleton_node_path(), false)
 	if is_instance_valid(instance):
 		return instance
 	
 	if print_err:
 		print("Could not get %s instance." % script.get_singleton_name())
+	return null
 
-static func _register_node(script:Script, node):
-	var instance = _get_singleton_node_or_null(script, script._get_singleton_node_path(), true, node)
+static func _register_node(script:Script, node:Node) -> Node:
+	var instance:Node = _get_singleton_node_or_null(script, script._get_singleton_node_path(), true, node)
 	instance.instance_refs.append(node)
 	return instance
 
-static func _unregister_node(script:Script, node):
-	var ins = _get_instance(script, false)
+static func _unregister_node(script:Script, node:Node) -> void:
+	var ins:Variant = _get_instance(script, false)
 	if not is_instance_valid(ins):
 		printerr("Singleton: '%s' has not been instanced yet." % script._get_singleton_name())
 		return
@@ -31,7 +32,7 @@ static func _unregister_node(script:Script, node):
 
 ## Instance members
 
-var instance_refs = []
+var instance_refs:Array = []
 
 #func unregister_node(node):
 	#instance_refs.erase(node)
@@ -39,10 +40,10 @@ var instance_refs = []
 		#_all_unregistered_callback()
 		#queue_free()
 
-func _all_unregistered_callback():
+func _all_unregistered_callback() -> void:
 	pass
 
-func _init(node):
+func _init(_node:Node) -> void:
 	pass
 
 
@@ -62,19 +63,19 @@ func _init(node):
 #static func instance_valid() -> bool:
 	#return _instance_valid(PE_STRIP_CAST_SCRIPT)
 #
-#static func register_node(node:Node):
+#static func register_node(node:Node) -> Node:
 	#return _register_node(PE_STRIP_CAST_SCRIPT, node)
 
-#static func unregister_node(node:Node):
+#static func unregister_node(node:Node) -> void:
 	#_unregister_node(PE_STRIP_CAST_SCRIPT, node)
 #
-#static func call_on_ready(callable, print_err:bool=true):
+#static func call_on_ready(callable, print_err:bool=true) -> void:
 	#_call_on_ready(PE_STRIP_CAST_SCRIPT, callable, print_err)
 
-#func _init(node):
+#func _init(node) -> void:
 	#pass
 #
-#func _all_unregistered_callback():
+#func _all_unregistered_callback() -> void:
 	#pass
 
 #func _get_ready_bool() -> bool:

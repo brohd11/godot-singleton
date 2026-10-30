@@ -3,8 +3,6 @@ extends Node
 
 const PLUGIN_EXPORTED = false
 
-#const UFile = preload("uid://bl33psa06nv1e") #! resolve ALibRuntime.Utils.UFile.Methods
-
 const RUNTIME_NODE_PATH = "RuntimeSingletons"
 
 enum SingletonType {
@@ -24,35 +22,33 @@ static func _get_singleton_type() -> SingletonType:
 	return SingletonType.STANDARD
 
 static func _instance_valid(script:Script) -> bool:
-	var root = Engine.get_main_loop().root
-	var instance = _get_singleton_node_or_null(script, script._get_singleton_node_path(), false)
+	var instance:Variant = _get_singleton_node_or_null(script, script._get_singleton_node_path(), false)
 	if is_instance_valid(instance):
 		return true
 	return false
 
-static func _get_instance(script:Script):
-	var root = Engine.get_main_loop().root
+static func _get_instance(script:Script) -> Variant:
 	return _get_singleton_node_or_null(script, script._get_singleton_node_path())
 
 
-static func _get_singleton_node_or_null(script:Script, node_path:String, create:=true, registered_node=null):
-	var root = Engine.get_main_loop().root
+static func _get_singleton_node_or_null(script:Script, node_path:String, create:=true, registered_node:Variant=null) -> Variant:
+	var root:Node = Engine.get_main_loop().root
 	var current_node:Node = root
 	
 	if _singleton_node_parents.has(node_path):
 		current_node = _singleton_node_parents.get(node_path)
 	else:
-		var all_parts = node_path.split("/", false)
-		var path_parts = []
-		for part in all_parts:
+		var all_parts:PackedStringArray = node_path.split("/", false)
+		var path_parts:Array[String] = []
+		for part:String in all_parts:
 			if part != "":
 				path_parts.append(part)
 		
 		for part:String in path_parts:
-			var child_node
+			var child_node:Variant
 			if part.ends_with("<t>"):
 				part = part.trim_suffix("<t>")
-				for c in current_node.get_children():
+				for c:Node in current_node.get_children():
 					if c.get_class() == part:
 						child_node = c
 						break
@@ -71,8 +67,8 @@ static func _get_singleton_node_or_null(script:Script, node_path:String, create:
 		_singleton_node_parents[node_path] = current_node
 	
 	
-	var singleton_name = script.get_singleton_name()
-	var singleton = current_node.get_node_or_null(singleton_name)
+	var singleton_name:String = script.get_singleton_name()
+	var singleton:Variant = current_node.get_node_or_null(singleton_name)
 	if not is_instance_valid(singleton):
 		if not create:
 			return null
@@ -91,13 +87,13 @@ static func _get_singleton_node_or_null(script:Script, node_path:String, create:
 #static func call_on_ready(callable):
 	#pass
 
-static func _call_on_ready(script:Script, callable:Callable, print_err:bool=true):
+static func _call_on_ready(script:Script, callable:Callable, print_err:bool=true) -> void:
 	var singleton_name:String = script.get_singleton_name()
-	var instance
-	var singleton_type = script._get_singleton_type()
+	var instance:Variant = null
+	var singleton_type:SingletonType = script._get_singleton_type()
 	if singleton_type == SingletonType.REF_COUNT:
-		var root = Engine.get_main_loop().root
-		var count = 0
+		var root:Node = Engine.get_main_loop().root
+		var count:int = 0
 		while not is_instance_valid(instance):
 			instance = script._get_instance(script, false)
 			count += 1
@@ -118,32 +114,32 @@ static func _call_on_ready(script:Script, callable:Callable, print_err:bool=true
 	
 	callable.call()
 
-static func _get_latest_version(script:Script, dir_to_check:String="res://addons"):
-	var singleton_name = script.get_singleton_name()
-	var global_classes = ProjectSettings.get_global_class_list()
-	for dict in global_classes:
-		var _class = dict.get("class")
+static func _get_latest_version(script:Script, dir_to_check:String="res://addons") -> GDScript:
+	var singleton_name:String = script.get_singleton_name()
+	var global_classes:Array[Dictionary] = ProjectSettings.get_global_class_list()
+	for dict:Dictionary in global_classes:
+		var _class:String = dict.get("class")
 		if _class != singleton_name:
 			continue
-		var path = dict.get("path")
-		var global_script = load(path)
+		var path:String = dict.get("path")
+		var global_script:GDScript = load(path)
 		if not global_script.has_method("get_singleton_name"):
 			continue # check that script actually is a singleton, in case of name collision
 		return global_script
 	
 	if not DirAccess.dir_exists_absolute(dir_to_check):
 		return script
-	var directories = DirAccess.get_directories_at(dir_to_check)
+	var directories:PackedStringArray = DirAccess.get_directories_at(dir_to_check)
 	
-	var candidates = []
-	for dir in directories:
-		var module_file_path = dir_to_check.path_join(dir).path_join(".export_data")
+	var candidates:Array = []
+	for dir:String in directories:
+		var module_file_path:String = dir_to_check.path_join(dir).path_join(".export_data")
 		if not FileAccess.file_exists(module_file_path):
 			continue
-		var module_data = _read_from_json(module_file_path)
-		var modules = module_data.get("singleton_modules", [])
-		for single_module_data in modules:
-			var _name = single_module_data.get("name", "")
+		var module_data:Dictionary = _read_from_json(module_file_path)
+		var modules:Array = module_data.get("singleton_modules", [])
+		for single_module_data:Dictionary in modules:
+			var _name:String = single_module_data.get("name", "")
 			if not _name == singleton_name:
 				continue
 			candidates.append(single_module_data)
@@ -152,20 +148,20 @@ static func _get_latest_version(script:Script, dir_to_check:String="res://addons
 	if candidates.is_empty():
 		return script
 	
-	var highest_version = candidates[0]
-	for i in range(1, candidates.size()):
+	var highest_version:Dictionary = candidates[0]
+	for i:int in range(1, candidates.size()):
 		if _is_version_greater(candidates[i].version, highest_version.version):
 			highest_version = candidates[i]
 	
-	var new_script = load(highest_version.path)
+	var new_script:GDScript = load(highest_version.path)
 	return new_script
 
 static func _is_version_greater(v1_str: String, v2_str: String) -> bool:
-	var v1 = v1_str.split(".")
-	var v2 = v2_str.split(".")
-	for i in range(3):
-		var n1 = int(v1[i]) if i < v1.size() else 0
-		var n2 = int(v2[i]) if i < v2.size() else 0
+	var v1:PackedStringArray = v1_str.split(".")
+	var v2:PackedStringArray = v2_str.split(".")
+	for i:int in range(3):
+		var n1:int = int(v1[i]) if i < v1.size() else 0
+		var n2:int = int(v2[i]) if i < v2.size() else 0
 		if n1 > n2: return true
 		if n1 < n2: return false
 	return false
@@ -174,22 +170,21 @@ static func _is_version_greater(v1_str: String, v2_str: String) -> bool:
 func _get_ready_bool() -> bool:
 	return is_node_ready()
 
-func _init(node:Node=null):
-	
+func _init(_node:Node=null) -> void:
 	pass
 
 
 
 #^ Util
 #! using UtilR.Files.UFile.read_from_json
-static func _read_from_json(path:String,access=FileAccess.READ) -> Dictionary:
-	var json_read = JSON.new()
-	var json_load = FileAccess.open(path, access)
+static func _read_from_json(path:String,access:=FileAccess.READ) -> Dictionary:
+	var json_read:JSON = JSON.new()
+	var json_load:FileAccess = FileAccess.open(path, access)
 	if json_load == null:
 		print("Couldn't load JSON: ", path)
 		return {}
-	var json_string = json_load.get_as_text()
-	var err = json_read.parse(json_string)
+	var json_string:String = json_load.get_as_text()
+	var err:Error = json_read.parse(json_string)
 	if err != OK:
 		print("Couldn't load JSON, error: ", err)
 		return {}
