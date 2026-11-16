@@ -200,7 +200,8 @@ static func _read_from_json(path:String,access:=FileAccess.READ) -> Dictionary:
 #extends Singletons.Base # if class_name, use absolute path
 #extends "res://addons/_lib/singleton/src/singleton_base.gd"
 
-# Use 'PE_STRIP_CAST_SCRIPT' to auto strip type casts with plugin exporter, if the class is not a global name
+# Another plugin's copy may be the live instance; the tag strips casts to it on export.
+##! gdp-strip-cast PE_STRIP_CAST_SCRIPT
 #const PE_STRIP_CAST_SCRIPT = preload("this_file")
 #static func get_singleton_name() -> String:
 	#return "MySingleton"
