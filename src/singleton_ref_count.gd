@@ -22,7 +22,7 @@ static func _register_node(script:Script, node:Node) -> Node:
 static func _unregister_node(script:Script, node:Node) -> void:
 	var ins:Variant = _get_instance(script, false)
 	if not is_instance_valid(ins):
-		printerr("Singleton: '%s' has not been instanced yet." % script._get_singleton_name())
+		printerr("Singleton: '%s' has not been instanced yet." % script.get_singleton_name())
 		return
 	
 	ins.instance_refs.erase(node)

@@ -78,8 +78,8 @@ static func _get_singleton_node_or_null(script:Script, node_path:String, create:
 			singleton = script.new()
 		else:
 			singleton = script.new(registered_node)
+		singleton.name = singleton_name # Before add_child: _ready may look the instance up by name.
 		current_node.add_child(singleton)
-		singleton.name = singleton_name
 	
 	return singleton
 
